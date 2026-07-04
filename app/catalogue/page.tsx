@@ -5,11 +5,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import productsData from "@/data/products";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function CataloguePage() {
   const [products, setProducts] = useState(productsData);
-  const router = useRouter();
 
   const increaseQty = (id: number) => {
     setProducts((prev) =>
@@ -38,25 +37,24 @@ export default function CataloguePage() {
   const handleViewCart = () => {
     const selectedProducts = products.filter((item) => item.quantity > 0);
     localStorage.setItem("cart", JSON.stringify(selectedProducts));
-    router.push("/orders");
   };
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg flex flex-col">
+    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col">
       <Header
         title="Place Order"
         subtitle="Browse products at your tier pricing"
       />
 
-      <main className="flex-1 p-4 pb-2">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
-          <p className="text-sm text-blue-700">
+      <main className="flex-1 p-4 pb-32">
+        <div className="bg-info-subtle border border-info/20 rounded-xl p-4 mb-4">
+          <p className="text-sm text-info">
             Only PKR 15,500 credit available — large orders may need partial
             payment.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4">
+        <div className="bg-surface border border-border rounded-xl px-4">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -71,26 +69,21 @@ export default function CataloguePage() {
         </div>
       </main>
 
-      <div className="w-full bg-white rounded-xl border p-4 mt-6 shadow-sm">
-        <div className="flex justify-between mb-3 text-sm">
-          <span>{totalItems} cartons</span>
-          <span className="font-bold">
-            PKR {totalAmount.toLocaleString()}
-          </span>
+      {totalItems > 0 && (
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-sm bg-surface border-t border-border p-4 shadow-[0_-4px_16px_rgba(15,23,42,0.08)] z-40">
+          <div className="flex justify-between mb-3 text-sm">
+            <span className="text-text-muted">{totalItems} cartons</span>
+            <span className="font-bold font-mono-num text-text">
+              PKR {totalAmount.toLocaleString("en-IN")}
+            </span>
+          </div>
+          <Link href="/orders" onClick={handleViewCart}>
+            <button className="w-full h-12 bg-dist text-white rounded-lg font-semibold active:bg-dist-hover">
+              View Cart & Place Order
+            </button>
+          </Link>
         </div>
-
-        <button
-          onClick={handleViewCart}
-          disabled={totalItems === 0}
-          className={`w-full py-3 rounded-lg font-semibold transition ${
-            totalItems === 0
-              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-              : "bg-cyan-600 text-white hover:bg-cyan-700"
-          }`}
-        >
-          View Cart & Place Order
-        </button>
-      </div>
+      )}
 
       <Footer />
     </div>

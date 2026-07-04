@@ -7,27 +7,37 @@ type InvoiceCardProps = {
   status: string;
 };
 
-export default function InvoiceCard({ invoiceNo, date, amount, status }: InvoiceCardProps) {
+export default function InvoiceCard({
+  invoiceNo,
+  date,
+  amount,
+  status,
+}: InvoiceCardProps) {
   const statusColor =
     status === "Paid"
-      ? "bg-green-100 text-green-700"
+      ? "bg-success-subtle text-success"
       : status === "Partial"
-      ? "bg-yellow-100 text-yellow-700"
-      : status === "Pending"
-      ? "bg-blue-100 text-blue-700"
-      : "bg-red-100 text-red-700";
+      ? "bg-warning-subtle text-warning"
+      : "bg-danger-subtle text-danger";
 
   return (
     <Link href={`/invoices/${invoiceNo}`}>
-      <div className="bg-white border rounded-xl p-4 cursor-pointer hover:shadow-md transition">
+      <div className="bg-surface border border-border rounded-xl p-4 cursor-pointer active:bg-surface-2 transition">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="font-semibold">{invoiceNo}</h3>
-            <p className="text-sm text-gray-500">{date}</p>
+            <h3 className="font-semibold text-sm text-text">{invoiceNo}</h3>
+            <p className="text-xs text-text-muted mt-0.5">{date}</p>
           </div>
+
           <div className="text-right">
-            <p className="font-bold">{amount}</p>
-            <span className={`text-sm px-2 py-1 rounded-full ${statusColor}`}>{status}</span>
+            <p className="font-bold font-mono-num text-sm text-text">
+              {amount}
+            </p>
+            <span
+              className={`text-[10px] font-bold px-2 py-1 rounded-full inline-block mt-1 ${statusColor}`}
+            >
+              {status}
+            </span>
           </div>
         </div>
       </div>

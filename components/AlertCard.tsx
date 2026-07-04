@@ -12,15 +12,14 @@ export default function AlertCard({
   status,
 }: AlertCardProps) {
   return (
-    <div className="bg-red-100 border border-red-300 rounded-xl p-4">
-      <h3 className="text-red-700 font-semibold">
+    <div className="bg-danger-subtle border border-danger/20 rounded-xl p-4 mt-4">
+      <h3 className="text-danger font-semibold text-sm">
         Invoice {invoiceNo} is overdue
       </h3>
-
-<p className="text-red-600 text-sm mt-1">
-  {amount} {status === "Partial" ? "partially due" : "due"} •{" "}
-  {overdueDays} days overdue
-</p>
+      <p className="text-danger text-sm mt-1 opacity-90">
+        {amount} {status === "Partial" ? "partially due" : "due"} •{" "}
+        {overdueDays} days overdue
+      </p>
     </div>
   );
 }

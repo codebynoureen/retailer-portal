@@ -5,10 +5,10 @@ type HeaderProps = {
 
 export default function Header({ title, subtitle }: HeaderProps) {
   return (
-    <header className="bg-cyan-700 text-white p-4">
-      <h1 className="text-2xl font-bold">{title}</h1>
+    <header className="bg-surface border-b border-border p-4 sticky top-0 z-40">
+      <h1 className="text-xl font-bold font-display text-text">{title}</h1>
       {subtitle && (
-        <p className="text-sm text-white/80 mt-1">{subtitle}</p>
+        <p className="text-sm text-text-muted mt-1">{subtitle}</p>
       )}
     </header>
   );

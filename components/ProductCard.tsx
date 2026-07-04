@@ -16,46 +16,40 @@ export default function ProductCard({
   onDecrease,
 }: ProductCardProps) {
   return (
-    <div className="flex items-center justify-between py-4 border-b border-gray-200">
-      {/* Product Info */}
+    <div className="flex items-center justify-between py-4 border-b border-border last:border-b-0">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-lg bg-gray-100 flex items-center justify-center">
+        <div className="w-11 h-11 rounded-lg bg-surface-2 flex items-center justify-center text-lg">
           📦
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold">{name}</h3>
-
+          <h3 className="text-sm font-semibold text-text">{name}</h3>
           <p
             className={`text-xs ${
-              stock <= 10 ? "text-red-600" : "text-green-600"
+              stock <= 10 ? "text-danger" : "text-success"
             }`}
           >
             {stock <= 10 ? `Only ${stock} ctns left` : "In stock"}
           </p>
-
-          <p className="text-xs text-gray-500">
-            PKR {price.toLocaleString()} / ctn
+          <p className="text-xs text-text-muted font-mono-num">
+            PKR {price.toLocaleString("en-IN")} / ctn
           </p>
         </div>
       </div>
 
-      {/* Quantity Stepper */}
       <div className="flex items-center gap-2">
         <button
           onClick={onDecrease}
-          className="w-8 h-8 rounded border border-gray-300 font-bold"
+          className="w-8 h-8 rounded border border-border-strong text-dist font-bold active:bg-dist-subtle"
         >
           −
         </button>
-
-        <span className="w-6 text-center font-semibold">
+        <span className="w-6 text-center font-semibold font-mono-num">
           {quantity}
         </span>
-
         <button
           onClick={onIncrease}
-          className="w-8 h-8 rounded border border-gray-300 font-bold"
+          className="w-8 h-8 rounded border border-border-strong text-dist font-bold active:bg-dist-subtle"
         >
           +
         </button>

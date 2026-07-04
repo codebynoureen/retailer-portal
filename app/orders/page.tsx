@@ -1,25 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import OrderCard from "@/components/OrderCard";
-import staticOrders, { type PastOrder } from "@/data/orders";
-import type { Invoice } from "@/data/invoices";
-import { addExtraInvoice, addExtraOrder, getExtraOrders } from "@/lib/localData";
+import { useRouter } from "next/navigation";
+
+type CartItem = {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+};
 
 export default function OrdersPage() {
-  const [cart, setCart] = useState<any[]>([]);
-  const [orderHistory, setOrderHistory] = useState<PastOrder[]>(staticOrders);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const router = useRouter();
 
   useEffect(() => {
+    // localStorage is only available in the browser, so the cart must be
+    // hydrated after mount rather than during the initial render.
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCart(JSON.parse(storedCart));
     }
-    setOrderHistory([...getExtraOrders(), ...staticOrders]);
   }, []);
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -29,109 +33,62 @@ export default function OrdersPage() {
   );
 
   const handlePlaceOrder = () => {
-    if (cart.length === 0) return;
-
-    const orderId = `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const invoiceId = `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    const today = new Date();
-    const dueDate = new Date(today);
-    dueDate.setDate(dueDate.getDate() + 15);
-
-    const formattedToday = today.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-
-    const newOrder: PastOrder = {
-      id: orderId,
-      date: formattedToday,
-      status: "Pending",
-      items: cart.map((item) => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    };
-
-    const newInvoice: Invoice = {
-      id: invoiceId,
-      amount: `PKR ${totalAmount.toLocaleString()}`,
-      status: "Pending",
-      dueDate: dueDate.toISOString().split("T")[0],
-      items: cart.map((item) => ({
-        name: item.name,
-        price: `PKR ${(item.price * item.quantity).toLocaleString()}`,
-      })),
-      payments: [],
-    };
-
-    addExtraOrder(newOrder);
-    addExtraInvoice(newInvoice);
-
-    alert("Order placed successfully! A new invoice has been generated.");
+    alert("Order placed successfully!");
     localStorage.removeItem("cart");
     router.push("/outstanding");
   };
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg flex flex-col">
+    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col">
       <Header title="Your Order" subtitle="Review your selected items" />
 
-      <main className="flex-1 p-4">
-        <h2 className="font-bold mb-4">Cart Items</h2>
+      <main className="flex-1 p-4 pb-24">
+        <h2 className="font-bold font-display mb-3 text-text">Cart Items</h2>
 
         {cart.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-gray-500">No items in cart.</p>
+            <p className="text-text-muted">No items in cart.</p>
           </div>
         ) : (
-          <>
+          <div className="space-y-3">
             {cart.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl border p-4 mb-3">
-                <p className="font-semibold">{item.name}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  PKR {item.price.toLocaleString()} / carton
+              <div
+                key={item.id}
+                className="bg-surface rounded-xl border border-border p-4"
+              >
+                <p className="font-semibold text-text">{item.name}</p>
+                <p className="text-sm text-text-muted mt-1 font-mono-num">
+                  PKR {item.price.toLocaleString("en-IN")} / carton
                 </p>
-                <div className="flex justify-between mt-3">
-                  <span>Qty: {item.quantity}</span>
-                  <span className="font-semibold">
-                    PKR {(item.price * item.quantity).toLocaleString()}
+                <div className="flex justify-between mt-3 text-sm">
+                  <span className="text-text-muted">Qty: {item.quantity}</span>
+                  <span className="font-semibold font-mono-num text-text">
+                    PKR {(item.price * item.quantity).toLocaleString("en-IN")}
                   </span>
                 </div>
               </div>
             ))}
-
-            <div className="border-t p-4 bg-gray-50 rounded-xl">
-              <div className="flex justify-between mb-2">
-                <span>Total Cartons</span>
-                <span>{totalItems}</span>
-              </div>
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>PKR {totalAmount.toLocaleString()}</span>
-              </div>
-              <button
-                onClick={handlePlaceOrder}
-                className="w-full mt-4 bg-cyan-600 text-white py-3 rounded-lg font-semibold"
-              >
-                Place Order
-              </button>
-            </div>
-          </>
+          </div>
         )}
 
-        <h2 className="font-bold mt-8 mb-4">Order History</h2>
-        {orderHistory.map((order) => (
-          <OrderCard
-            key={order.id}
-            orderId={order.id}
-            date={order.date}
-            status={order.status}
-            items={order.items}
-          />
-        ))}
+        {cart.length > 0 && (
+          <div className="border border-border rounded-xl p-4 bg-surface-2 mt-4">
+            <div className="flex justify-between mb-2 text-sm">
+              <span className="text-text-muted">Total Cartons</span>
+              <span className="text-text">{totalItems}</span>
+            </div>
+            <div className="flex justify-between font-bold text-lg font-mono-num text-text">
+              <span className="font-sans">Total</span>
+              <span>PKR {totalAmount.toLocaleString("en-IN")}</span>
+            </div>
+            <button
+              onClick={handlePlaceOrder}
+              className="w-full h-12 mt-4 bg-dist text-white rounded-lg font-semibold active:bg-dist-hover"
+            >
+              Place Order
+            </button>
+          </div>
+        )}
       </main>
 
       <Footer />

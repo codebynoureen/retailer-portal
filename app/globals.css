@@ -1,28 +1,90 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════
+   DistributeOS — Retailer Portal Design Tokens (A3)
+═══════════════════════════════════════════════════════ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f0f4fa;
+  --surface: #ffffff;
+  --surface-2: #f6f8fd;
+  --border: #dde4f0;
+  --border-strong: #b8c4da;
+
+  --dist: #0891b2;
+  --dist-hover: #077391;
+  --dist-subtle: #e0f5fa;
+
+  --secondary: #0d1f3c;
+  --secondary-mid: #16315a;
+  --secondary-text: #a8bedd;
+
+  --success: #0b7a4a;
+  --success-subtle: #e6f5ee;
+  --warning: #c96b0a;
+  --warning-subtle: #fdf3e7;
+  --danger: #c0392b;
+  --danger-subtle: #fdeceb;
+  --info: #2563eb;
+  --info-subtle: #ebf1fd;
+
+  --text: #0f172a;
+  --text-dim: #334155;
+  --text-muted: #64748b;
+
+  --radius-card: 10px;
+
+  --background: var(--bg);
+  --foreground: var(--text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-dist: var(--dist);
+  --color-dist-hover: var(--dist-hover);
+  --color-dist-subtle: var(--dist-subtle);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-mid: var(--secondary-mid);
+  --color-secondary-text: var(--secondary-text);
+
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-text-muted: var(--text-muted);
+
+  --font-display: var(--font-plus-jakarta), sans-serif;
+  --font-sans: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+
+  --radius-card: var(--radius-card);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
 }
 
-h1, h2, h3 {
-  font-family: var(--font-heading), Arial, Helvetica, sans-serif;
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-num {
+  font-family: var(--font-jetbrains-mono), monospace;
 }

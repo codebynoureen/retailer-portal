@@ -2,39 +2,37 @@ type CreditCardProps = {
   totalOutstanding: number;
 };
 
-export default function CreditCard({
-  totalOutstanding,
-}: CreditCardProps) {
-  const limit = 500000;
-
-  const available = limit - totalOutstanding;
-
-  const percentage = (totalOutstanding / limit) * 100;
+export default function CreditCard({ totalOutstanding }: CreditCardProps) {
+  const limit = 200000;
+  const available = Math.max(limit - totalOutstanding, 0);
+  const percentage = Math.min((totalOutstanding / limit) * 100, 100);
+  const barColor = percentage >= 90 ? "bg-danger" : percentage >= 70 ? "bg-warning" : "bg-dist";
 
   return (
-    <div className="bg-blue-900 text-white rounded-xl p-5">
-      <p className="text-sm text-gray-300">
+    <div className="bg-secondary text-white rounded-xl p-5 mb-4">
+      <p className="text-xs uppercase tracking-wide text-secondary-text font-semibold">
         Total Outstanding
       </p>
 
-      <h2 className="text-3xl font-bold mt-2">
-        PKR {totalOutstanding.toLocaleString()}
+      <h2 className="text-3xl font-bold font-display mt-1">
+        PKR {totalOutstanding.toLocaleString("en-IN")}
       </h2>
 
       <div className="mt-4">
-        <div className="w-full h-2 bg-blue-700 rounded-full">
+        <div className="w-full h-2.5 bg-white/15 rounded-full overflow-hidden">
           <div
-            className="h-2 bg-red-500 rounded-full"
+            className={`h-full rounded-full transition-all duration-700 ${barColor}`}
             style={{ width: `${percentage}%` }}
           ></div>
         </div>
       </div>
 
-      <div className="flex justify-between mt-4 text-sm">
-        <p>Limit: PKR {limit.toLocaleString()}</p>
-
+      <div className="flex justify-between mt-3 text-xs text-secondary-text">
         <p>
-          Available: PKR {available.toLocaleString()}
+          Credit Limit: <strong className="text-white">PKR {limit.toLocaleString("en-IN")}</strong>
+        </p>
+        <p>
+          Available: <strong className="text-white">PKR {available.toLocaleString("en-IN")}</strong>
         </p>
       </div>
     </div>

@@ -1,16 +1,23 @@
 type ButtonProps = {
   title: string;
   onClick?: () => void;
+  variant?: "primary" | "secondary";
 };
 
 export default function Button({
   title,
   onClick,
+  variant = "primary",
 }: ButtonProps) {
+  const styles =
+    variant === "primary"
+      ? "bg-dist text-white active:bg-dist-hover"
+      : "bg-surface text-dist border-[1.5px] border-border-strong";
+
   return (
     <button
       onClick={onClick}
-      className="bg-blue-600 text-white px-4 py-2 rounded m-2 hover:bg-blue-700 transition-colors duration-300"
+      className={`w-full h-12 rounded-lg font-semibold transition-colors duration-200 ${styles}`}
     >
       {title}
     </button>

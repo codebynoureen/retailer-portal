@@ -1,21 +1,17 @@
 "use client";
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import InvoiceCard from "@/components/InvoiceCard";
 import Button from "@/components/Button";
-import staticInvoices, { type Invoice } from "@/data/invoices";
-import { getExtraInvoices } from "@/lib/localData";
-import { useEffect, useState } from "react";
+import invoices from "@/data/invoices";
+import { useState } from "react";
+
+const filters = ["All", "Paid", "Partial", "Overdue"] as const;
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>(staticInvoices);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState<(typeof filters)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(2);
-
-  useEffect(() => {
-    setInvoices([...getExtraInvoices(), ...staticInvoices]);
-  }, []);
 
   const filteredInvoices = invoices.filter((invoice) => {
     const query = search.toLowerCase();
@@ -28,35 +24,35 @@ export default function InvoicesPage() {
   });
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
+    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col">
       <Header title="My Invoices" subtitle="View and download all invoices" />
-      <main className="p-6">
+
+      <main className="flex-1 p-4 pb-24">
         <input
           type="text"
           placeholder="Search invoice by ID, status, or amount"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full border rounded-lg p-3 mb-4"
+          className="w-full h-12 border border-border bg-surface-2 rounded-lg px-3 mb-4 text-sm outline-none focus:border-dist focus:bg-surface"
         />
 
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {["All", "Pending", "Paid", "Partial", "Overdue"].map((s) => (
+        <div className="flex gap-2 mb-4">
+          {filters.map((f) => (
             <button
-              key={s}
-              onClick={() => setFilter(s)}
-              className={`px-3 py-2 rounded-lg ${
-                filter === s ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                filter === f
+                  ? "bg-dist text-white"
+                  : "bg-surface-2 text-text-dim"
               }`}
             >
-              {s}
+              {f}
             </button>
           ))}
         </div>
 
-        <h2 className="text-2xl font-bold mb-1">My Invoices</h2>
-        <p className="text-gray-500 mb-6">View and download all invoices</p>
-
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredInvoices.length > 0 ? (
             filteredInvoices.slice(0, visibleCount).map((invoice) => (
               <InvoiceCard
@@ -69,16 +65,27 @@ export default function InvoicesPage() {
             ))
           ) : (
             <div className="text-center py-10">
-              <p className="text-lg font-semibold">No invoices found</p>
-              <p className="text-gray-500">Try another search or filter.</p>
+              <p className="text-base font-semibold text-text">
+                No invoices found
+              </p>
+              <p className="text-text-muted text-sm mt-1">
+                Try another search or filter.
+              </p>
             </div>
           )}
         </div>
 
         {visibleCount < filteredInvoices.length && (
-          <Button title="Load More" onClick={() => setVisibleCount(visibleCount + 2)} />
+          <div className="mt-4">
+            <Button
+              title="Load More"
+              variant="secondary"
+              onClick={() => setVisibleCount(visibleCount + 2)}
+            />
+          </div>
         )}
       </main>
+
       <Footer />
     </div>
   );
