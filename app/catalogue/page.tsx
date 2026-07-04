@@ -5,17 +5,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import productsData from "@/data/products";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function CataloguePage() {
   const [products, setProducts] = useState(productsData);
+  const router = useRouter();
 
   const increaseQty = (id: number) => {
     setProducts((prev) =>
       prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
   };
@@ -30,46 +29,33 @@ export default function CataloguePage() {
     );
   };
 
-  const totalItems = products.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
-
+  const totalItems = products.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = products.reduce(
     (sum, item) => sum + item.quantity * item.price,
     0
   );
-  const handleViewCart = () => {
-  const selectedProducts = products.filter(
-    (item) => item.quantity > 0
-  );
 
-  localStorage.setItem(
-    "cart",
-    JSON.stringify(selectedProducts)
-  );
-};
+  const handleViewCart = () => {
+    const selectedProducts = products.filter((item) => item.quantity > 0);
+    localStorage.setItem("cart", JSON.stringify(selectedProducts));
+    router.push("/orders");
+  };
 
   return (
     <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg flex flex-col">
-
-      {/* Header */}
       <Header
         title="Place Order"
         subtitle="Browse products at your tier pricing"
       />
 
-      {/* Main Content */}
       <main className="flex-1 p-4 pb-2">
-
-        {/* Credit Warning */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
           <p className="text-sm text-blue-700">
-            Only PKR 15,500 credit available — large orders may need partial payment.
+            Only PKR 15,500 credit available — large orders may need partial
+            payment.
           </p>
         </div>
 
-        {/* Products */}
         <div className="bg-white rounded-xl shadow-sm p-4">
           {products.map((product) => (
             <ProductCard
@@ -83,12 +69,9 @@ export default function CataloguePage() {
             />
           ))}
         </div>
-
       </main>
 
-      {/* Sticky Bottom Bar */}
       <div className="w-full bg-white rounded-xl border p-4 mt-6 shadow-sm">
-
         <div className="flex justify-between mb-3 text-sm">
           <span>{totalItems} cartons</span>
           <span className="font-bold">
@@ -96,17 +79,20 @@ export default function CataloguePage() {
           </span>
         </div>
 
-      <Link href="/orders" onClick={handleViewCart}>
-  <button className="w-full bg-cyan-600 text-white py-3 rounded-lg font-semibold">
-    View Cart & Place Order
-  </button>
-</Link>
-
+        <button
+          onClick={handleViewCart}
+          disabled={totalItems === 0}
+          className={`w-full py-3 rounded-lg font-semibold transition ${
+            totalItems === 0
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-cyan-600 text-white hover:bg-cyan-700"
+          }`}
+        >
+          View Cart & Place Order
+        </button>
       </div>
 
-      {/* Footer */}
       <Footer />
-
     </div>
   );
 }

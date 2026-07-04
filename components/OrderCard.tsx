@@ -1,26 +1,61 @@
-import { useRouter } from "next/navigation";
-interface OrderCardProps {
+type OrderItem = {
   name: string;
   quantity: number;
   price: number;
-}
+};
+
+type OrderCardProps = {
+  orderId: string;
+  date: string;
+  status: "Delivered" | "Pending" | "Processing";
+  items: OrderItem[];
+};
 
 export default function OrderCard({
-  name,
-  quantity,
-  price,
+  orderId,
+  date,
+  status,
+  items,
 }: OrderCardProps) {
-    const router = useRouter();
+  const total = items.reduce(
+    (sum, item) => sum + item.quantity * item.price,
+    0
+  );
+
+  const statusColor =
+    status === "Delivered"
+      ? "bg-green-100 text-green-700"
+      : status === "Processing"
+      ? "bg-yellow-100 text-yellow-700"
+      : "bg-blue-100 text-blue-700";
+
   return (
-    <div className="border-b py-4">
-      <h3 className="font-semibold">{name}</h3>
-
-      <div className="flex justify-between mt-2 text-sm text-gray-600">
-        <span>{quantity} cartons</span>
-
-        <span className="font-semibold text-black">
-          PKR {price.toLocaleString()}
+    <div className="bg-white border rounded-xl p-4 mb-3">
+      <div className="flex justify-between items-center mb-2">
+        <div>
+          <h3 className="font-semibold">{orderId}</h3>
+          <p className="text-xs text-gray-500">{date}</p>
+        </div>
+        <span className={`text-xs px-2 py-1 rounded-full ${statusColor}`}>
+          {status}
         </span>
+      </div>
+
+      {items.map((item) => (
+        <div
+          key={item.name}
+          className="flex justify-between text-sm text-gray-600 py-1"
+        >
+          <span>
+            {item.name} × {item.quantity}
+          </span>
+          <span>PKR {(item.price * item.quantity).toLocaleString()}</span>
+        </div>
+      ))}
+
+      <div className="flex justify-between mt-2 pt-2 border-t font-semibold">
+        <span>Total</span>
+        <span>PKR {total.toLocaleString()}</span>
       </div>
     </div>
   );
