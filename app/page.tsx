@@ -13,7 +13,7 @@ export default function Home() {
         {/* Welcome Card */}
         <div className="bg-dist text-white rounded-xl p-5 mb-5">
           <h2 className="text-2xl font-bold font-display">
-            Welcome, Noureen 👋
+            Welcome! 👋
           </h2>
           <p className="text-sm mt-2 opacity-90">
             Quickly place orders, track invoices and monitor your outstanding
