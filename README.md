@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Retailer Portal
 
-## Getting Started
+A responsive Retailer Portal built with Next.js, TypeScript, and Tailwind CSS. The application allows retailers to browse products, place orders, view invoices, and monitor outstanding payments through a clean and user-friendly interface.
 
-First, run the development server:
+## Live Demo
+
+https://retailer-portal-lemon.vercel.app/
+
+## GitHub Repository
+
+https://github.com/codebynoureen/retailer-portal
+
+## Features
+
+- Responsive mobile-first design
+- Dashboard/Home page
+- Product Catalogue
+- Increase/Decrease product quantity
+- Shopping Cart functionality
+- Order Review page
+- Invoice List
+- Invoice Details
+- Outstanding Payments
+- Print Invoice
+- Clean and reusable components
+- Local Storage support for cart
+
+## Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- HTML5
+- Git
+- GitHub
+- Vercel
+
+## Project Structure
+
+```text
+app/
+├── catalogue/
+├── invoices/
+│   └── [id]/
+├── orders/
+├── outstanding/
+├── layout.tsx
+└── page.tsx
+
+components/
+├── AlertCard.tsx
+├── Button.tsx
+├── CreditCard.tsx
+├── CreditMeter.tsx
+├── DownloadButton.tsx
+├── Footer.tsx
+├── Header.tsx
+├── InvoiceCard.tsx
+├── KpiCard.tsx
+├── OrderCard.tsx
+├── PaymentHistory.tsx
+├── ProductCard.tsx
+└── WelcomeSection.tsx
+
+data/
+├── invoices.ts
+├── orders.ts
+└── products.ts
+```
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/codebynoureen/retailer-portal.git
+```
+
+Move into the project folder:
+
+```bash
+cd retailer-portal
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deployment
 
-## Learn More
+The project is deployed on Vercel.
 
-To learn more about Next.js, take a look at the following resources:
+Live URL:
+https://retailer-portal-lemon.vercel.app/
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Author
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Noureen Shahid**
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub:
+https://github.com/codebynoureen
