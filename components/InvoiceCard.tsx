@@ -18,6 +18,8 @@ export default function InvoiceCard({
       ? "bg-success-subtle text-success"
       : status === "Partial"
       ? "bg-warning-subtle text-warning"
+      : status === "Pending"
+      ? "bg-info-subtle text-info"
       : "bg-danger-subtle text-danger";
 
   return (

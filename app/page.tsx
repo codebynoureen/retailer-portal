@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col">
+    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col shadow-lg">
       <Header
         title="Retailer Portal"
         subtitle="Manage your orders, invoices & payments"

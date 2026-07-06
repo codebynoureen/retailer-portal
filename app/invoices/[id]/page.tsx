@@ -5,20 +5,37 @@ import { useParams } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DownloadButton from "@/components/DownloadButton";
-import staticInvoices, { type Invoice } from "@/data/invoices";
-import { getExtraInvoices } from "@/lib/localData";
+import { type Invoice } from "@/data/invoices";
+import { getMergedInvoices, payInvoice } from "@/lib/localData";
+
+const PAYMENT_METHODS = ["JazzCash", "EasyPaisa", "Bank Transfer", "Cash"];
 
 export default function InvoiceDetails() {
   const params = useParams<{ id: string }>();
   const id = params.id as string;
 
-  const [invoices, setInvoices] = useState<Invoice[]>(staticInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState(PAYMENT_METHODS[0]);
 
   useEffect(() => {
-    setInvoices([...getExtraInvoices(), ...staticInvoices]);
+    setInvoices(getMergedInvoices());
   }, []);
 
   const invoice = invoices.find((item) => item.id === id);
+
+  const handlePay = () => {
+    const amountPaid = Number(amount);
+    if (!amountPaid || amountPaid <= 0) return;
+
+    payInvoice(id, amountPaid, method);
+
+    // Re-read invoices so this page (and the amount/status shown) reflects
+    // the payment immediately. Outstanding & Invoices pages pick it up too,
+    // the next time they load, since they also read through getMergedInvoices().
+    setInvoices(getMergedInvoices());
+    setAmount("");
+  };
 
   if (!invoice) {
     return (
@@ -31,6 +48,8 @@ export default function InvoiceDetails() {
       </div>
     );
   }
+
+  const remaining = Number(invoice.amount.replace(/[^0-9]/g, ""));
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white shadow-lg pl-7 pr-7">
@@ -55,8 +74,8 @@ export default function InvoiceDetails() {
         {invoice.payments.length === 0 ? (
           <p className="text-sm text-gray-500">No payments recorded yet.</p>
         ) : (
-          invoice.payments.map((payment) => (
-            <div key={payment.date} className="flex justify-between border-b py-2">
+          invoice.payments.map((payment, index) => (
+            <div key={`${payment.date}-${index}`} className="flex justify-between border-b py-2">
               <div>
                 <p>{payment.method}</p>
                 <p className="text-sm text-gray-500">{payment.date}</p>
@@ -64,6 +83,42 @@ export default function InvoiceDetails() {
               <span>{payment.amount}</span>
             </div>
           ))
+        )}
+
+        {invoice.status !== "Paid" && (
+          <div className="border rounded-xl p-4 mt-4 space-y-3">
+            <h3 className="text-lg font-bold">Make a Payment</h3>
+            <p className="text-sm text-gray-500">
+              Remaining balance: PKR {remaining.toLocaleString("en-IN")}
+            </p>
+
+            <input
+              type="number"
+              placeholder="Amount to pay"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full border rounded-lg p-3"
+            />
+
+            <select
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+              className="w-full border rounded-lg p-3"
+            >
+              {PAYMENT_METHODS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={handlePay}
+              className="w-full h-12 bg-blue-600 text-white rounded-lg font-semibold"
+            >
+              Pay Now
+            </button>
+          </div>
         )}
 
         <DownloadButton />

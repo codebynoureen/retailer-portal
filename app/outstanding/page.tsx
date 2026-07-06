@@ -9,14 +9,14 @@ import KpiCard from "@/components/KpiCard";
 import AlertCard from "@/components/AlertCard";
 import InvoiceCard from "@/components/InvoiceCard";
 import Button from "@/components/Button";
-import staticInvoices, { type Invoice } from "@/data/invoices";
-import { getExtraInvoices } from "@/lib/localData";
+import { type Invoice } from "@/data/invoices";
+import { getMergedInvoices } from "@/lib/localData";
 
 export default function Home() {
-  const [invoices, setInvoices] = useState<Invoice[]>(staticInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
   useEffect(() => {
-    setInvoices([...getExtraInvoices(), ...staticInvoices]);
+    setInvoices(getMergedInvoices());
   }, []);
 
   const today = new Date();
