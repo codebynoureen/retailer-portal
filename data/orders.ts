@@ -9,6 +9,7 @@ export interface PastOrder {
   date: string;
   status: "Delivered" | "Pending" | "Processing";
   items: OrderLineItem[];
+  invoiceId?: string;
 }
 
 const orders: PastOrder[] = [

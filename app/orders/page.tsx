@@ -5,13 +5,18 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderCard from "@/components/OrderCard";
-import staticOrders, { type PastOrder } from "@/data/orders";
+import type { PastOrder } from "@/data/orders";
 import type { Invoice } from "@/data/invoices";
-import { addExtraInvoice, addExtraOrder, getExtraOrders } from "@/lib/localData";
+import {
+  addExtraInvoice,
+  addExtraOrder,
+  getMergedOrders,
+  updateOrderStatus,
+} from "@/lib/localData";
 
 export default function OrdersPage() {
   const [cart, setCart] = useState<any[]>([]);
-  const [orderHistory, setOrderHistory] = useState<PastOrder[]>(staticOrders);
+  const [orderHistory, setOrderHistory] = useState<PastOrder[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,7 +24,7 @@ export default function OrdersPage() {
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
-    setOrderHistory([...getExtraOrders(), ...staticOrders]);
+    setOrderHistory(getMergedOrders());
   }, []);
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -48,6 +53,7 @@ export default function OrdersPage() {
       id: orderId,
       date: formattedToday,
       status: "Pending",
+      invoiceId,
       items: cart.map((item) => ({
         name: item.name,
         quantity: item.quantity,
@@ -73,6 +79,11 @@ export default function OrdersPage() {
     alert("Order placed successfully! A new invoice has been generated.");
     localStorage.removeItem("cart");
     router.push("/outstanding");
+  };
+
+  const handleMarkDelivered = (orderId: string) => {
+    updateOrderStatus(orderId, "Delivered");
+    setOrderHistory(getMergedOrders());
   };
 
   return (
@@ -130,6 +141,7 @@ export default function OrdersPage() {
             date={order.date}
             status={order.status}
             items={order.items}
+            onMarkDelivered={handleMarkDelivered}
           />
         ))}
       </main>

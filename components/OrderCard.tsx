@@ -9,6 +9,7 @@ type OrderCardProps = {
   date: string;
   status: "Delivered" | "Pending" | "Processing";
   items: OrderItem[];
+  onMarkDelivered?: (orderId: string) => void;
 };
 
 export default function OrderCard({
@@ -16,6 +17,7 @@ export default function OrderCard({
   date,
   status,
   items,
+  onMarkDelivered,
 }: OrderCardProps) {
   const total = items.reduce(
     (sum, item) => sum + item.quantity * item.price,
@@ -57,6 +59,15 @@ export default function OrderCard({
         <span>Total</span>
         <span>PKR {total.toLocaleString()}</span>
       </div>
+
+      {status === "Processing" && onMarkDelivered && (
+        <button
+          onClick={() => onMarkDelivered(orderId)}
+          className="w-full mt-3 bg-green-600 text-white py-2 rounded-lg text-sm font-semibold"
+        >
+          Mark as Delivered
+        </button>
+      )}
     </div>
   );
 }
