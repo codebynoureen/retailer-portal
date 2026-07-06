@@ -3,18 +3,21 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import InvoiceCard from "@/components/InvoiceCard";
 import Button from "@/components/Button";
-import staticInvoices, { type Invoice } from "@/data/invoices";
-import { getExtraInvoices } from "@/lib/localData";
+import { type Invoice } from "@/data/invoices";
+import { getMergedInvoices } from "@/lib/localData";
 import { useEffect, useState } from "react";
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>(staticInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(2);
 
   useEffect(() => {
-    setInvoices([...getExtraInvoices(), ...staticInvoices]);
+    const refresh = () => setInvoices(getMergedInvoices());
+    refresh();
+    window.addEventListener("invoices-updated", refresh);
+    return () => window.removeEventListener("invoices-updated", refresh);
   }, []);
 
   const filteredInvoices = invoices.filter((invoice) => {
