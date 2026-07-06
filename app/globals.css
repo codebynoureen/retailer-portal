@@ -88,3 +88,21 @@ body {
 .font-mono-num {
   font-family: var(--font-jetbrains-mono), monospace;
 }
+@media print {
+
+  header,
+  footer,
+  button {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  .invoice {
+    width: 100%;
+    margin: 0;
+    box-shadow: none;
+  }
+}

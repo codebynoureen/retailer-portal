@@ -3,7 +3,7 @@ type CreditCardProps = {
 };
 
 export default function CreditCard({ totalOutstanding }: CreditCardProps) {
-  const limit = 200000;
+  const limit = 1000000;
   const available = Math.max(limit - totalOutstanding, 0);
   const percentage = Math.min((totalOutstanding / limit) * 100, 100);
   const barColor = percentage >= 90 ? "bg-danger" : percentage >= 70 ? "bg-warning" : "bg-dist";

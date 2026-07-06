@@ -9,7 +9,7 @@ export default function Home() {
         subtitle="Manage your orders, invoices & payments"
       />
 
-      <main className="flex-1 p-4 pb-24">
+      <main className=" bg-white flex-1 p-4 pb-24">
         {/* Welcome Card */}
         <div className="bg-dist text-white rounded-xl p-5 mb-5">
           <h2 className="text-2xl font-bold font-display">
@@ -20,6 +20,23 @@ export default function Home() {
             balance using the tabs below.
           </p>
         </div>
+       <div className="flex flex-col items-center text-center mt-10">
+  <img
+    src="/retailer.png"
+    alt="Retailer Portal"
+    className="w-50 h-50 object-contain"
+  />
+
+  <h2 className="mt-5 text-2xl font-bold text-gray-800">
+    Manage Your Shop Anytime
+  </h2>
+
+  <p className="mt-3 text-gray-600 text-sm leading-6 max-w-xs">
+    Welcome to the Retailer Portal. Easily browse products, place new
+    orders, track invoices, and monitor your outstanding balance from one
+    simple dashboard.
+  </p>
+</div>
       </main>
 
       <Footer />

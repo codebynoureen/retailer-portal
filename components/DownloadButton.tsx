@@ -4,9 +4,11 @@ import Button from "./Button";
 
 export default function DownloadButton() {
   return (
-    <Button
+    <div className="invoice" >
+      <Button
       title="Print Invoice"
-      onClick={() => window.print()}
-    />
+      onClick={() => window.print()} />
+      </div>
   );
+  
 }

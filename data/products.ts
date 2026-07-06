@@ -12,7 +12,7 @@ const products: Product[] = [
     name: "Lays Classic 15g × 24",
     price: 3840,
     stock: 100,
-    quantity: 4,
+    quantity: 0,
   },
   {
     id: 2,
@@ -26,7 +26,7 @@ const products: Product[] = [
     name: "Cheetos Crunchy 18g × 24",
     price: 4800,
     stock: 100,
-    quantity: 2,
+    quantity: 0,
   },
   {
     id: 4,

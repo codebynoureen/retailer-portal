@@ -40,13 +40,13 @@ export default function CataloguePage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col">
+    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
       <Header
         title="Place Order"
         subtitle="Browse products at your tier pricing"
       />
 
-      <main className="flex-1 p-4 pb-32">
+      <main className="flex-1 p-4 pb-40">
         <div className="bg-info-subtle border border-info/20 rounded-xl p-4 mb-4">
           <p className="text-sm text-info">
             Only PKR 15,500 credit available — large orders may need partial
@@ -70,15 +70,15 @@ export default function CataloguePage() {
       </main>
 
       {totalItems > 0 && (
-        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-sm bg-surface border-t border-border p-4 shadow-[0_-4px_16px_rgba(15,23,42,0.08)] z-40">
-          <div className="flex justify-between mb-3 text-sm">
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-sm bg-surface border-t border-border p-2 shadow-[0_-4px_16px_rgba(15,23,42,0.08)] z-40">
+          <div className="flex justify-between mb-2s text-sm">
             <span className="text-text-muted">{totalItems} cartons</span>
             <span className="font-bold font-mono-num text-text">
               PKR {totalAmount.toLocaleString("en-IN")}
             </span>
           </div>
           <Link href="/orders" onClick={handleViewCart}>
-            <button className="w-full h-12 bg-dist text-white rounded-lg font-semibold active:bg-dist-hover">
+            <button className="w-full h-10 bg-dist text-white rounded-lg font-semibold active:bg-dist-hover">
               View Cart & Place Order
             </button>
           </Link>

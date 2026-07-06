@@ -1,23 +1,30 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import CreditCard from "@/components/CreditCard";
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import CreditCard from "../../components/CreditCard";
 import KpiCard from "@/components/KpiCard";
 import AlertCard from "@/components/AlertCard";
 import InvoiceCard from "@/components/InvoiceCard";
 import Button from "@/components/Button";
-import invoices from "@/data/invoices";
-import Link from "next/link";
+import staticInvoices, { type Invoice } from "@/data/invoices";
+import { getExtraInvoices } from "@/lib/localData";
 
 export default function Home() {
+  const [invoices, setInvoices] = useState<Invoice[]>(staticInvoices);
+
+  useEffect(() => {
+    setInvoices([...getExtraInvoices(), ...staticInvoices]);
+  }, []);
+
   const today = new Date();
 
-  const overdueInvoices = invoices.filter(
-    (invoice) => invoice.status === "Overdue"
-  );
+  const overdueInvoices = invoices.filter((invoice) => invoice.status === "Overdue");
   const paidInvoices = invoices.filter((invoice) => invoice.status === "Paid");
-  const partialInvoices = invoices.filter(
-    (invoice) => invoice.status === "Partial"
-  );
+  const partialInvoices = invoices.filter((invoice) => invoice.status === "Partial");
+  const pendingInvoices = invoices.filter((invoice) => invoice.status === "Pending");
 
   const oldest = [...overdueInvoices].sort(
     (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
@@ -31,7 +38,10 @@ export default function Home() {
     : 0;
 
   const outstandingInvoices = invoices.filter(
-    (invoice) => invoice.status === "Overdue" || invoice.status === "Partial"
+    (invoice) =>
+      invoice.status === "Overdue" ||
+      invoice.status === "Partial" ||
+      invoice.status === "Pending"
   );
 
   const totalOutstanding = outstandingInvoices.reduce(
@@ -40,32 +50,18 @@ export default function Home() {
   );
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col">
+    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
       <Header title="Al-Noor General Store" subtitle="Model Town, Lahore" />
 
-      <main className="flex-1 p-4 pb-24">
+      <main className="p-10 pb-20 space-y-6">
         <CreditCard totalOutstanding={totalOutstanding} />
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <KpiCard
-            value={overdueInvoices.length.toString()}
-            label="Overdue Invoice"
-            color="text-danger"
-          />
-          <KpiCard
-            value={overdueDays.toString()}
-            label="Days Oldest Due"
-          />
-          <KpiCard
-            value={partialInvoices.length.toString()}
-            label="Partial Invoices"
-            color="text-warning"
-          />
-          <KpiCard
-            value={paidInvoices.length.toString()}
-            label="Paid Invoices"
-            color="text-success"
-          />
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <KpiCard value={overdueInvoices.length.toString()} label="Overdue Invoice" color="text-red-600" />
+          <KpiCard value={paidInvoices.length.toString()} label="Paid Invoices" color="text-green-600" />
+          <KpiCard value={overdueDays.toString()} label="Days Oldest Due" />
+          <KpiCard value={partialInvoices.length.toString()} label="Partial Invoices" color="text-yellow-600" />
+          <KpiCard value={pendingInvoices.length.toString()} label="New Orders (Unbilled)" color="text-blue-600" />
         </div>
 
         {oldest && (
@@ -77,10 +73,8 @@ export default function Home() {
           />
         )}
 
-        <h2 className="text-lg font-bold font-display mt-6 mb-3 text-text">
-          Outstanding Invoices
-        </h2>
-        <div className="space-y-3 mb-4">
+        <h2 className="text-xl font-bold mt-6">Outstanding Invoices</h2>
+        <div className="space-y-4">
           {outstandingInvoices.map((invoice) => (
             <InvoiceCard
               key={invoice.id}
@@ -93,7 +87,7 @@ export default function Home() {
         </div>
 
         <Link href="/invoices">
-          <Button title="View All Invoices" variant="secondary" />
+          <Button title="View All Invoices" />
         </Link>
       </main>
 
