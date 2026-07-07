@@ -1,111 +1,129 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderCard from "@/components/OrderCard";
-import type { PastOrder } from "@/data/orders";
-import type { Invoice } from "@/data/invoices";
-import {
-  addExtraInvoice,
-  addExtraOrder,
-  getMergedOrders,
-  updateOrderStatus,
-} from "@/lib/localData";
+
+interface CartLine {
+  id: string;
+  name: string;
+  price: number; // rupees
+  quantity: number;
+}
+
+interface OrderHistoryItem {
+  id: string;
+  orderNo: string;
+  status: "PENDING" | "CONFIRMED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED";
+  totalLabel: string;
+  createdAt: string;
+  items: { name: string; quantity: number; pricePaisa: number }[];
+}
+
+function toOrderCardStatus(
+  status: OrderHistoryItem["status"]
+): "Delivered" | "Pending" | "Processing" {
+  switch (status) {
+    case "DELIVERED":
+      return "Delivered";
+    case "CONFIRMED":
+    case "OUT_FOR_DELIVERY":
+      return "Processing";
+    case "PENDING":
+    case "CANCELLED":
+    default:
+      return "Pending";
+  }
+}
 
 export default function OrdersPage() {
-  const [cart, setCart] = useState<any[]>([]);
-  const [orderHistory, setOrderHistory] = useState<PastOrder[]>([]);
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [orderHistory, setOrderHistory] = useState<OrderHistoryItem[]>([]);
+  const [placing, setPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState<string | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const router = useRouter();
+
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await fetch("/api/retailer/orders?page=1&pageSize=20");
+      const json = await res.json();
+      if (!json.error) {
+        setOrderHistory(json.data.orders);
+      }
+    } catch {
+      // non-critical for this screen's primary job (placing an order)
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
-    setOrderHistory(getMergedOrders());
-  }, []);
+    loadHistory();
+  }, [loadHistory]);
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = cart.reduce(
-    (sum, item) => sum + item.quantity * item.price,
-    0
-  );
+  const totalAmount = cart.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
-  const handlePlaceOrder = () => {
+  async function handlePlaceOrder() {
     if (cart.length === 0) return;
+    setPlacing(true);
+    setPlaceError(null);
 
-    const orderId = `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const invoiceId = `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart.map((item) => ({ productId: item.id, quantity: item.quantity })),
+        }),
+      });
+      const json = await res.json();
 
-    const today = new Date();
-    const dueDate = new Date(today);
-    dueDate.setDate(dueDate.getDate() + 15);
+      if (json.error) {
+        setPlaceError(json.message);
+        setPlacing(false);
+        return;
+      }
 
-    const formattedToday = today.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-
-    const newOrder: PastOrder = {
-      id: orderId,
-      date: formattedToday,
-      status: "Pending",
-      invoiceId,
-      items: cart.map((item) => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    };
-
-    const newInvoice: Invoice = {
-      id: invoiceId,
-      amount: `PKR ${totalAmount.toLocaleString()}`,
-      status: "Pending",
-      dueDate: dueDate.toISOString().split("T")[0],
-      items: cart.map((item) => ({
-        name: item.name,
-        price: `PKR ${(item.price * item.quantity).toLocaleString()}`,
-      })),
-      payments: [],
-    };
-
-    addExtraOrder(newOrder);
-    addExtraInvoice(newInvoice);
-
-    alert("Order placed successfully! A new invoice has been generated.");
-    localStorage.removeItem("cart");
-    router.push("/outstanding");
-  };
-
-  const handleMarkDelivered = (orderId: string) => {
-    updateOrderStatus(orderId, "Delivered");
-    setOrderHistory(getMergedOrders());
-  };
+      alert(`Order placed successfully — ${json.data.orderNo}`);
+      localStorage.removeItem("cart");
+      setCart([]);
+      await loadHistory();
+      router.push("/outstanding");
+    } catch {
+      setPlaceError("Failed to place order. Please try again.");
+      setPlacing(false);
+    }
+  }
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg pl-6 pr-6">
+    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
       <Header title="Your Order" subtitle="Review your selected items" />
 
-      <main className="flex-1 p-4 pb-20 pl-4">
-        <h2 className="font-bold mb-4">Cart Items</h2>
+      <main className="p-4 pb-20">
+        <h2 className="font-bold font-display text-text mb-4">Cart Items</h2>
 
         {cart.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-gray-500">No items in cart.</p>
+            <p className="text-text-muted">No items in cart.</p>
           </div>
         ) : (
           <>
             {cart.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl border p-4 mb-3">
-                <p className="font-semibold">{item.name}</p>
-                <p className="text-sm text-gray-500 mt-1">
+              <div key={item.id} className="bg-surface border border-border rounded-xl p-4 mb-3">
+                <p className="font-semibold text-text">{item.name}</p>
+                <p className="text-sm text-text-muted mt-1">
                   PKR {item.price.toLocaleString()} / carton
                 </p>
-                <div className="flex justify-between mt-3">
+                <div className="flex justify-between mt-3 text-text">
                   <span>Qty: {item.quantity}</span>
                   <span className="font-semibold">
                     PKR {(item.price * item.quantity).toLocaleString()}
@@ -114,36 +132,57 @@ export default function OrdersPage() {
               </div>
             ))}
 
-            <div className="border-t p-4 bg-gray-50 rounded-xl">
-              <div className="flex justify-between mb-2">
+            <div className="border border-border p-4 bg-surface-2 rounded-xl">
+              <div className="flex justify-between mb-2 text-text">
                 <span>Total Cartons</span>
                 <span>{totalItems}</span>
               </div>
-              <div className="flex justify-between font-bold text-lg">
+              <div className="flex justify-between font-bold text-lg text-text">
                 <span>Total</span>
                 <span>PKR {totalAmount.toLocaleString()}</span>
               </div>
+
+              {placeError && (
+                <div className="mt-3 text-sm text-danger bg-danger-subtle border border-danger/20 rounded-lg px-3 py-2">
+                  {placeError}
+                </div>
+              )}
+
               <button
                 onClick={handlePlaceOrder}
-                className="w-full mt-4 bg-cyan-600 text-white py-3 rounded-lg font-semibold"
+                disabled={placing}
+                className="w-full mt-4 bg-dist text-white py-3 rounded-lg font-semibold disabled:opacity-50 active:bg-dist-hover"
               >
-                Place Order
+                {placing ? "Placing Order…" : "Place Order"}
               </button>
             </div>
           </>
         )}
 
-        <h2 className="font-bold mt-8 mb-4">Order History</h2>
-        {orderHistory.map((order) => (
-          <OrderCard
-            key={order.id}
-            orderId={order.id}
-            date={order.date}
-            status={order.status}
-            items={order.items}
-            onMarkDelivered={handleMarkDelivered}
-          />
-        ))}
+        <h2 className="font-bold font-display text-text mt-8 mb-4">Order History</h2>
+        {historyLoading ? (
+          <p className="text-center text-text-muted py-6">Loading…</p>
+        ) : orderHistory.length === 0 ? (
+          <p className="text-center text-text-muted py-6">No past orders yet.</p>
+        ) : (
+          orderHistory.map((order) => (
+            <OrderCard
+              key={order.id}
+              orderId={order.orderNo}
+              date={new Date(order.createdAt).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+              status={toOrderCardStatus(order.status)}
+              items={order.items.map((item) => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: item.pricePaisa / 100,
+              }))}
+            />
+          ))
+        )}
       </main>
 
       <Footer />

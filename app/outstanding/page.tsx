@@ -9,79 +9,170 @@ import KpiCard from "@/components/KpiCard";
 import AlertCard from "@/components/AlertCard";
 import InvoiceCard from "@/components/InvoiceCard";
 import Button from "@/components/Button";
-import { type Invoice } from "@/data/invoices";
-import { getMergedInvoices } from "@/lib/localData";
 
-export default function Home() {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+interface OutstandingInvoice {
+  id: string;
+  invoiceNo: string;
+  amountPaisa: number;
+  amountLabel: string;
+  status: "OVERDUE" | "PARTIAL" | "PENDING";
+  dueDate: string;
+  daysOverdue: number;
+}
+
+interface OutstandingResponse {
+  outletName: string;
+  outletAddress: string;
+  totalOutstandingLabel: string;
+  creditLimitLabel: string;
+  availableCreditLabel: string;
+  percentUsed: number;
+  overdueCount: number;
+  oldestOverdueDays: number;
+  invoices: OutstandingInvoice[];
+}
+
+export default function OutstandingPage() {
+  const [data, setData] = useState<OutstandingResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setInvoices(getMergedInvoices());
+    fetch("/api/retailer/outstanding")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.error) {
+          setError(json.message);
+        } else {
+          setData(json.data);
+        }
+      })
+      .catch(() => setError("Failed to load outstanding balance"))
+      .finally(() => setLoading(false));
   }, []);
 
-  const today = new Date();
+  async function handlePay(invoiceId: string, remainingPaisa: number) {
+    const remainingRupees = Math.round(remainingPaisa / 100);
 
-  const overdueInvoices = invoices.filter((invoice) => invoice.status === "Overdue");
-  const paidInvoices = invoices.filter((invoice) => invoice.status === "Paid");
-  const partialInvoices = invoices.filter((invoice) => invoice.status === "Partial");
-  const pendingInvoices = invoices.filter((invoice) => invoice.status === "Pending");
+    const input = prompt(
+      `Enter amount to pay for ${invoiceId} (PKR).\nRemaining balance: PKR ${remainingRupees.toLocaleString()}`,
+      remainingRupees.toString()
+    );
 
-  const oldest = [...overdueInvoices].sort(
-    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-  )[0];
+    if (input === null) return; // user cancelled
 
-  const overdueDays = oldest
-    ? Math.floor(
-        (today.getTime() - new Date(oldest.dueDate).getTime()) /
-          (1000 * 60 * 60 * 24)
-      )
-    : 0;
+    const enteredRupees = Number(input);
 
-  const outstandingInvoices = invoices.filter(
-    (invoice) =>
-      invoice.status === "Overdue" ||
-      invoice.status === "Partial" ||
-      invoice.status === "Pending"
-  );
+    if (!Number.isFinite(enteredRupees) || enteredRupees <= 0) {
+      alert("Please enter a valid positive amount.");
+      return;
+    }
 
-  const totalOutstanding = outstandingInvoices.reduce(
-    (total, invoice) => total + Number(invoice.amount.replace(/[^0-9]/g, "")),
-    0
-  );
+    const amountPaisa = Math.round(enteredRupees * 100);
+
+    if (amountPaisa > remainingPaisa) {
+      alert(`Amount exceeds the remaining balance of PKR ${remainingRupees.toLocaleString()}.`);
+      return;
+    }
+
+    const methodChoice = prompt(
+      "Payment method — type one of: CASH, BANK_TRANSFER, JAZZCASH, EASYPAISA",
+      "CASH"
+    );
+    const validMethods = ["CASH", "BANK_TRANSFER", "JAZZCASH", "EASYPAISA"];
+    const method = methodChoice?.toUpperCase().trim();
+
+    if (!method || !validMethods.includes(method)) {
+      alert("Invalid payment method.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/invoices/${invoiceId}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amountPaisa, method }),
+      });
+      const json = await res.json();
+
+      if (json.error) {
+        alert(json.message);
+        return;
+      }
+
+      alert(
+        `Payment of PKR ${enteredRupees.toLocaleString()} recorded. New status: ${json.data.status}. Remaining: ${json.data.remainingLabel}`
+      );
+      window.location.reload();
+    } catch {
+      alert("Payment failed. Please try again.");
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col shadow-lg">
+        <Header title="Retailer Portal" subtitle="Loading…" />
+        <main className="p-4   pb-20 text-center text-text-muted">Loading…</main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col shadow-lg">
+        <Header title="Retailer Portal" />
+        <main className="p-4 pb-20 text-center text-danger">{error ?? "No data"}</main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const oldest = data.invoices.find((inv) => inv.status === "OVERDUE");
 
   return (
     <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
-      <Header title="Al-Noor General Store" subtitle="Model Town, Lahore" />
+      <Header title={data.outletName} subtitle={data.outletAddress} />
 
-      <main className="p-10 pb-20 space-y-6">
-        <CreditCard totalOutstanding={totalOutstanding} />
+      <main className="p-4 pb-20 space-y-6">
+        <CreditCard
+          totalOutstandingLabel={data.totalOutstandingLabel}
+          creditLimitLabel={data.creditLimitLabel}
+          availableCreditLabel={data.availableCreditLabel}
+          percentUsed={data.percentUsed}
+        />
 
         <div className="grid grid-cols-2 gap-4 mt-4">
-          <KpiCard value={overdueInvoices.length.toString()} label="Overdue Invoice" color="text-red-600" />
-          <KpiCard value={paidInvoices.length.toString()} label="Paid Invoices" color="text-green-600" />
-          <KpiCard value={overdueDays.toString()} label="Days Oldest Due" />
-          <KpiCard value={partialInvoices.length.toString()} label="Partial Invoices" color="text-yellow-600" />
-          <KpiCard value={pendingInvoices.length.toString()} label="New Orders (Unbilled)" color="text-blue-600" />
+          <KpiCard value={data.overdueCount.toString()} label="Overdue Invoice" color="text-danger" />
+          <KpiCard value={data.oldestOverdueDays.toString()} label="Days Oldest Due" />
         </div>
 
         {oldest && (
           <AlertCard
-            invoiceNo={oldest.id}
-            amount={oldest.amount}
-            overdueDays={overdueDays}
-            status={oldest.status}
+            invoiceNo={oldest.invoiceNo}
+            amount={oldest.amountLabel}
+            overdueDays={oldest.daysOverdue}
+            status="Overdue"
           />
         )}
 
-        <h2 className="text-xl font-bold mt-6">Outstanding Invoices</h2>
+        <h2 className="text-xl font-bold font-display text-text mt-6">Outstanding Invoices</h2>
         <div className="space-y-4">
-          {outstandingInvoices.map((invoice) => (
+          {data.invoices.map((invoice) => (
             <InvoiceCard
               key={invoice.id}
-              invoiceNo={invoice.id}
+              invoiceNo={invoice.invoiceNo}
               date={invoice.dueDate}
-              amount={invoice.amount}
-              status={invoice.status}
+              amount={invoice.amountLabel}
+              status={
+                invoice.status === "OVERDUE"
+                  ? "Overdue"
+                  : invoice.status === "PARTIAL"
+                  ? "Partial"
+                  : "Pending"
+              }
+              onPay={() => handlePay(invoice.id, invoice.amountPaisa)}
             />
           ))}
         </div>

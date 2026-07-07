@@ -1,77 +1,136 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import productsData from "@/data/products";
 import Link from "next/link";
 
+interface CatalogueProduct {
+  id: string;
+  name: string;
+  unit: string;
+  pricePaisa: number;
+  stock: number;
+  inStock: boolean;
+}
+
+interface CartLine {
+  id: string;
+  name: string;
+  price: number; // rupees, matches what ProductCard/Orders page expect
+  quantity: number;
+}
+
 export default function CataloguePage() {
-  const [products, setProducts] = useState(productsData);
+  const [products, setProducts] = useState<CatalogueProduct[]>([]);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [availableCreditLabel, setAvailableCreditLabel] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const increaseQty = (id: number) => {
-    setProducts((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
+  useEffect(() => {
+    fetch("/api/retailer/catalogue")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.error) {
+          setError(json.message);
+        } else {
+          setProducts(json.data.products);
+        }
+      })
+      .catch(() => setError("Failed to load catalogue"))
+      .finally(() => setLoading(false));
+
+    fetch("/api/retailer/outstanding")
+      .then((res) => res.json())
+      .then((json) => {
+        if (!json.error) setAvailableCreditLabel(json.data.availableCreditLabel);
+      })
+      .catch(() => {
+        // non-critical — banner just won't show a live figure
+      });
+  }, []);
+
+  function increaseQty(id: string) {
+    setQuantities((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
+  }
+
+  function decreaseQty(id: string) {
+    setQuantities((prev) => ({ ...prev, [id]: Math.max((prev[id] ?? 0) - 1, 0) }));
+  }
+
+  const cartLines: CartLine[] = products
+    .filter((p) => (quantities[p.id] ?? 0) > 0)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: p.pricePaisa / 100,
+      quantity: quantities[p.id],
+    }));
+
+  const totalItems = cartLines.reduce((sum, item) => sum + item.quantity, 0);
+  const totalAmount = cartLines.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  function handleViewCart() {
+    localStorage.setItem("cart", JSON.stringify(cartLines));
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
+        <Header title="Place Order" subtitle="Browse products at your tier pricing" />
+        <main className="p-4 text-center text-text-muted">Loading…</main>
+        <Footer />
+      </div>
     );
-  };
+  }
 
-  const decreaseQty = (id: number) => {
-    setProducts((prev) =>
-      prev.map((item) =>
-        item.id === id && item.quantity > 0
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
+  if (error) {
+    return (
+      <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
+        <Header title="Place Order" subtitle="Browse products at your tier pricing" />
+        <main className="p-4 text-center text-danger">{error}</main>
+        <Footer />
+      </div>
     );
-  };
-
-  const totalItems = products.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = products.reduce(
-    (sum, item) => sum + item.quantity * item.price,
-    0
-  );
-
-  const handleViewCart = () => {
-    const selectedProducts = products.filter((item) => item.quantity > 0);
-    localStorage.setItem("cart", JSON.stringify(selectedProducts));
-  };
+  }
 
   return (
     <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
-      <Header
-        title="Place Order"
-        subtitle="Browse products at your tier pricing"
-      />
+      <Header title="Place Order" subtitle="Browse products at your tier pricing" />
 
       <main className="flex-1 p-4 pb-40">
         <div className="bg-info-subtle border border-info/20 rounded-xl p-4 mb-4">
           <p className="text-sm text-info">
-            Only PKR 15,500 credit available — large orders may need partial
-            payment.
+            {availableCreditLabel
+              ? `Only ${availableCreditLabel} credit available — large orders may need partial payment.`
+              : "Large orders may need partial payment depending on your available credit."}
           </p>
         </div>
 
         <div className="bg-surface border border-border rounded-xl px-4">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              name={product.name}
-              price={product.price}
-              stock={product.stock}
-              quantity={product.quantity}
-              onIncrease={() => increaseQty(product.id)}
-              onDecrease={() => decreaseQty(product.id)}
-            />
-          ))}
+          {products.length === 0 ? (
+            <p className="text-center text-text-muted py-8 text-sm">No products available.</p>
+          ) : (
+            products.map((product) => (
+              <ProductCard
+                key={product.id}
+                name={product.name}
+                price={product.pricePaisa / 100}
+                stock={product.stock}
+                quantity={quantities[product.id] ?? 0}
+                onIncrease={() => increaseQty(product.id)}
+                onDecrease={() => decreaseQty(product.id)}
+              />
+            ))
+          )}
         </div>
       </main>
 
       {totalItems > 0 && (
         <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-sm bg-surface border-t border-border p-2 shadow-[0_-4px_16px_rgba(15,23,42,0.08)] z-40">
-          <div className="flex justify-between mb-2s text-sm">
+          <div className="flex justify-between mb-2 text-sm">
             <span className="text-text-muted">{totalItems} cartons</span>
             <span className="font-bold font-mono-num text-text">
               PKR {totalAmount.toLocaleString("en-IN")}

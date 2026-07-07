@@ -33,12 +33,16 @@ export default function OrderCard({
 
   return (
     <div className="bg-white border rounded-xl p-4 mb-3">
-      <div className="flex justify-between items-center mb-2">
-        <div>
-          <h3 className="font-semibold">{orderId}</h3>
+      <div className="flex justify-between items-start gap-2 mb-2">
+        <div className="min-w-0">
+          <h3 className="font-semibold truncate" title={orderId}>
+            {orderId}
+          </h3>
           <p className="text-xs text-gray-500">{date}</p>
         </div>
-        <span className={`text-xs px-2 py-1 rounded-full ${statusColor}`}>
+        <span
+          className={`text-xs px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${statusColor}`}
+        >
           {status}
         </span>
       </div>
@@ -46,12 +50,12 @@ export default function OrderCard({
       {items.map((item) => (
         <div
           key={item.name}
-          className="flex justify-between text-sm text-gray-600 py-1"
+          className="flex justify-between text-sm text-gray-600 py-1 gap-2"
         >
-          <span>
+          <span className="truncate">
             {item.name} × {item.quantity}
           </span>
-          <span>PKR {(item.price * item.quantity).toLocaleString()}</span>
+          <span className="shrink-0">PKR {(item.price * item.quantity).toLocaleString()}</span>
         </div>
       ))}
 
