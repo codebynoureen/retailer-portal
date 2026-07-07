@@ -105,10 +105,10 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
+    <div className="max-w-sm mx-auto min-h-screen bg-white flex flex-col shadow-lg w-full">
       <Header title="Your Order" subtitle="Review your selected items" />
 
-      <main className="p-4 pb-20">
+      <main className="p-8 pb-20">
         <h2 className="font-bold font-display text-text mb-4">Cart Items</h2>
 
         {cart.length === 0 ? (

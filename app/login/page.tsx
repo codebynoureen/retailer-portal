@@ -34,15 +34,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-bg flex flex-col shadow-lg">
-      <div className="mb-8 text-center">
+<div className="max-w-sm mx-auto min-h-screen bg-white flex flex-col shadow-lg w-full"> 
+       <main className="flex-1 px-6 py-10">
+    <div className="w-full">
         <h1 className="text-2xl font-bold font-display text-text">Retailer Portal</h1>
         <p className="text-sm text-text-muted mt-1">Sign in to manage your shop</p>
-      </div>
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="text-sm font-semibold text-text-dim">
+          <label htmlFor="email" className="text-sm font-semibold text-text-dim pt-4">
             Email
           </label>
           <input
@@ -87,6 +87,9 @@ export default function LoginPage() {
           {loading ? "Signing in…" : "Sign In"}
         </button>
       </form>
+      </div>
+      </main>
     </div>
+    
   );
 }

@@ -33,7 +33,7 @@ export async function GET(
     }
 
     const pdfBytes = await generateInvoicePdf({
-      invoiceId: invoice.id,
+      invoiceId: invoice.invoiceNo,
       outletName: invoice.outlet.name,
       outletAddress: invoice.outlet.address ?? "",
       dueDate: invoice.dueDate,

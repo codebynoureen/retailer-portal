@@ -51,7 +51,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col items-center text-center mt-6 mb-6">
-          <img src="/retailer.png" alt="Retailer Portal" className="w-40 h-40 object-contain" />
+          <img src="/retailer.png" alt="Retailer Portal" className="w-30 h-30 object-contain" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">

@@ -1,6 +1,6 @@
 # Retailer Portal
 
-A responsive Retailer Portal built with Next.js, TypeScript, and Tailwind CSS. The application allows retailers to browse products, place orders, view invoices, and monitor outstanding payments through a clean and user-friendly interface.
+A modern Retailer Portal built with Next.js, TypeScript, Tailwind CSS, Prisma, and PostgreSQL. The application enables retailers to browse products, place orders, manage invoices, track outstanding balances, and make partial or full payments through a responsive and user-friendly interface.
 
 ## Live Demo
 
@@ -13,17 +13,20 @@ https://github.com/codebynoureen/retailer-portal
 ## Features
 
 - Responsive mobile-first design
-- Dashboard/Home page
+- Retailer authentication
+- Dashboard with credit summary
 - Product Catalogue
-- Increase/Decrease product quantity
-- Shopping Cart functionality
-- Order Review page
-- Invoice List
-- Invoice Details
-- Outstanding Payments
-- Print Invoice
-- Clean and reusable components
-- Local Storage support for cart
+- Shopping Cart
+- Place Orders
+- Order History
+- Invoice Management
+- Outstanding Balance Tracking
+- Partial & Full Invoice Payments
+- Invoice PDF Download
+- Payment History
+- PostgreSQL database integration
+- Prisma ORM
+- Reusable UI Components
 
 ## Tech Stack
 
@@ -31,7 +34,9 @@ https://github.com/codebynoureen/retailer-portal
 - React
 - TypeScript
 - Tailwind CSS
-- HTML5
+- Prisma ORM
+- PostgreSQL
+- PDF-lib
 - Git
 - GitHub
 - Vercel
@@ -40,33 +45,10 @@ https://github.com/codebynoureen/retailer-portal
 
 ```text
 app/
-├── catalogue/
-├── invoices/
-│   └── [id]/
-├── orders/
-├── outstanding/
-├── layout.tsx
-└── page.tsx
-
 components/
-├── AlertCard.tsx
-├── Button.tsx
-├── CreditCard.tsx
-├── CreditMeter.tsx
-├── DownloadButton.tsx
-├── Footer.tsx
-├── Header.tsx
-├── InvoiceCard.tsx
-├── KpiCard.tsx
-├── OrderCard.tsx
-├── PaymentHistory.tsx
-├── ProductCard.tsx
-└── WelcomeSection.tsx
-
-data/
-├── invoices.ts
-├── orders.ts
-└── products.ts
+lib/
+prisma/
+public/
 ```
 
 ## Installation
@@ -89,7 +71,14 @@ Install dependencies:
 npm install
 ```
 
-Start the development server:
+Configure environment variables:
+
+```env
+DATABASE_URL=
+DIRECT_URL=
+```
+
+Run the development server:
 
 ```bash
 npm run dev

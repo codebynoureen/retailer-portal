@@ -78,9 +78,9 @@ export default function CataloguePage() {
 
   if (loading) {
     return (
-      <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
+      <div className="max-w-sm mx-auto min-h-screen bg-white flex flex-col shadow-lg w-full">
         <Header title="Place Order" subtitle="Browse products at your tier pricing" />
-        <main className="p-4 text-center text-text-muted">Loading…</main>
+        <main className="flex-1 flex items-center justify-center text-text-muted">Loading…</main>
         <Footer />
       </div>
     );
@@ -88,16 +88,16 @@ export default function CataloguePage() {
 
   if (error) {
     return (
-      <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
+      <div className="max-w-sm mx-auto min-h-screen bg-white flex flex-col shadow-lg w-full">
         <Header title="Place Order" subtitle="Browse products at your tier pricing" />
-        <main className="p-4 text-center text-danger">{error}</main>
+        <main className="flex-1 flex items-center justify-center text-danger">{error}</main>
         <Footer />
       </div>
     );
   }
 
   return (
-    <div className="max-w-sm mx-auto min-h-screen bg-white shadow-lg">
+    <div className="max-w-sm mx-auto min-h-screen bg-white flex flex-col shadow-lg w-full">
       <Header title="Place Order" subtitle="Browse products at your tier pricing" />
 
       <main className="flex-1 p-4 pb-40">
