@@ -85,7 +85,6 @@ export default function CataloguePage() {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="max-w-sm mx-auto min-h-screen bg-white flex flex-col shadow-lg w-full">

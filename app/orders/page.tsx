@@ -96,7 +96,7 @@ export default function OrdersPage() {
       alert(`Order placed successfully — ${json.data.orderNo}`);
       localStorage.removeItem("cart");
       setCart([]);
-      await loadHistory();
+      // await loadHistory();
       router.push("/outstanding");
     } catch {
       setPlaceError("Failed to place order. Please try again.");
