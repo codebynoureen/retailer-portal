@@ -1,4 +1,4 @@
-# Retailer Portal
+# DistributeOS — Retailer Portal
 
 A Retailer Portal built with Next.js, TypeScript, Tailwind CSS, Prisma, PostgreSQL (Supabase), and Supabase Auth. The application enables retailers to check their outstanding balance, view and download invoices, browse the product catalogue, place orders, and record invoice payments through a responsive, mobile-first interface.
 
